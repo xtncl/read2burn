@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="ie ie6" lang="<%= getLocale() %>"> <![endif]-->
-<!--[if IE 7 ]><html class="ie ie7" lang="<%= getLocale() %>"> <![endif]-->
-<!--[if IE 8 ]><html class="ie ie8" lang="<%= getLocale() %>"> <![endif]-->
-<!--[if (gte IE 9)|!(IE)]><!--><html lang="<%= getLocale() %>"> <!--<![endif]-->
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"> <!--<![endif]-->
 <head>
 
     <!-- Basic Page Needs
   ================================================== -->
     <meta charset="utf-8">
-    <title>read2burn</title>
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <title>xtn-secrets</title>
+    <meta name="description" content="Share secrets securely - read once and self-destruct">
+    <meta name="author" content="Christian Lepuschitz">
 
     <!-- Mobile Specific Metas
   ================================================== -->
@@ -50,53 +50,89 @@
 
 <div class="container">
     <div class="sixteen columns">
-        <h1 class="title">READ<span class="title-number">2</span>BURN</h1>
+        <h1 class="title">XTN<span class="title-number">-</span>SECRETS</h1>
         <div class="subtitle">Transfer Secrets Securely</div>
     </div>
     <div class="sixteen columns">
         <form action="./" method="post">
             <% if (error=='ERR_NO_SUCH_ENTRY') { %>
-                <p><em><%= __('No entry found!') %></em></p>
-                <p><em><strong><%= __('Either there is no such key or your entry has already been accessed by another one.') %></strong></em></p>
-                <button type="submit"><%= __('Create new link') %></button>
+                <p><em>No entry found!</em></p>
+                <p><em><strong>Either there is no such key or your entry has already been accessed by another one.</strong></em></p>
+                <button type="submit">Create new link</button>
             <%} else {%>
                 <% if (found) { %>
                     <% if (secret) { %>
-                        <label for="regularTextarea"><%= __('The entry:') %></label>
-                        <textarea style="width:95%;margin-bottom:0px" id="result" name="result" readonly><% if (secret) { %><%= secret %><%}%></textarea>
-                        <p><em><%= __('Do not reload! Your entry has been deleted already.') %></em></p>
+                        <label for="regularTextarea">Your secret (copy it now, it will be deleted):</label>
+                        <textarea style="width:95%;margin-bottom:0px;color:#000;background:#fff" id="result" name="result" readonly><% if (secret) { %><%= secret %><%}%></textarea>
+                        <button type="button" id="copySecret" style="margin-top:10px">Copy to clipboard</button>
+                        <p style="margin-top:15px"><em><strong>Important: Save this now! If you reload the page, the entry will be gone forever.</strong></em></p>
                     <%} else {%>
-                        <p><%= __('You can access the secret message now. Please note that the message will be deleted!') %></p>
+                        <p>You can access the secret message now. Please note that the message will be deleted after viewing!</p>
                         <input type="hidden" name="id" value="<%= id %>"/>
                         <input type="hidden" name="show" value="true"/>
-                        <button type="submit"><%= __('Show secret') %></button>
+                        <button type="submit">Show secret</button>
                     <%}%>
                 <%} else {%>
-                    <label for="regularTextarea"><%= __('Text (password, secret, etc.):') %></label>
+                    <label for="regularTextarea">Text (password, secret, API key, etc.):</label>
                     <textarea style="width:95%;margin-bottom:0px" id="secret" name="secret"><% if (secret) { %><%= secret %><%}%></textarea>
                 <%}%>
                 <% if (found && secret) { %>
-                    <button type="submit"><%= __('Create new link') %></button>
+                    <button type="submit">Create new link</button>
                 <%} else if (!found) {%>
-                    <button type="submit"><%= __('Create link') %></button>
+                    <button type="submit">Create link</button>
                 <%}%>
             <%}%>
         </form>
         <% if(url) { %>
-            <label><%= __('Text available only once by this URL:') %></label>
+            <label>Text available only once by this URL:</label>
             <input style="width:95%" type="text" id="url" name="url" value="<%= url %>" readonly/>
-            <button type="submit" id="copy"><%= __('copy') %></button>
+            <button type="submit" id="copy">Copy link</button>
         <% } %>
     </div>
     <div class="sixteen columns">
         <h5 id="faq" style="margin-top:50px;margin-bottom:20px;text-decoration:underline;"><a href="#">INFO</a></h5>
     </div>
     <div id="faqContainer" style="display:none">
-        <div class="sixteen columns"><h6><%= __('How does it work?') %></h6><p><%= __('Paste your secret in the text box. Create a link to your secret, the secret will be encrypted. Send the link to the recipient. The recipient can access the secret within 100 days by this link. After the link has been accessed, the encrypted secret will be deleted. Following accesses will lead to an error message.') %></p></div>
-        <div class="sixteen columns"><h6><%= __('What is it all about?') %></h6><p><%= __('Sending secrets by email has some problems. First, the email is usually stored unencrypted, everybody who has acces to the mail data can read the secret, second the email is stored in the email account of the sender and the recipient! read2burn.com enables a secure transmission by storing the secret encrypted and creating an access url that is valid only once. Therefore a manipulation by others will be recognized.') %></p></div>
-        <div class="sixteen columns"><h6><%= __('Hints') %></h6><p><%= __('Never encrypt login and password together.') %><br/><%= __('Send login and password always separately.') %></p></div>
-        <div class="sixteen columns"><h6><%= __('Your data is safe!') %></h6><p><%= __('All transactions are made encrypted. The secret is stored encrypted. The key will not be stored. There is no log and no way to decrypt the secret without the URL.') %></p></div>
-        <div class="sixteen columns"><h6><%= __('Who made it?') %></h6><p><%= __('This service is provided by') %> <a href="http://www.wemove.com/">www.wemove.com</a>.</p></div>
+        <div class="sixteen columns">
+            <h6>How does it work?</h6>
+            <p>Simple in 3 steps:</p>
+            <ol>
+                <li>Paste your secret text (password, API key, etc.) in the box above</li>
+                <li>Click "Create link" to get a unique URL</li>
+                <li>Send this URL to the recipient (e.g. via email, chat, or messaging app)</li>
+            </ol>
+            <p>When the recipient opens the link, they can read the secret once. After that, it is gone forever. If someone tries to access it again, they will see an error, so you know if someone else intercepted it.</p>
+        </div>
+        <div class="sixteen columns">
+            <h6>Why use this instead of email?</h6>
+            <p>Sending passwords via email is risky. Emails are usually stored unencrypted on mail servers, in your sent folder, and in the recipient's inbox. Anyone with access to these systems can read them, even years later.</p>
+            <p>With xtn-secrets, the message is encrypted and can only be read once. After that, it is deleted automatically, leaving no trace.</p>
+        </div>
+        <div class="sixteen columns">
+            <h6>Security Tips</h6>
+            <ul>
+                <li>Never send username AND password in the same message</li>
+                <li>Send them separately (e.g. username via email, password via xtn-secrets link)</li>
+                <li>The link expires after 100 days if not accessed</li>
+                <li>Always use a secure channel to send the link itself</li>
+            </ul>
+        </div>
+        <div class="sixteen columns">
+            <h6>Your data is safe!</h6>
+            <p>All connections are encrypted (HTTPS). Your secret is stored encrypted on the server. The decryption key is only in the URL, never stored on the server. There are no logs. Without the URL, the secret cannot be decrypted.</p>
+        </div>
+        <div class="sixteen columns">
+            <h6>About this service</h6>
+            <p>This is a self-hosted instance of read2burn, operated by Christian Lepuschitz. The domain secrets.vie.xtn.sh is part of my personal infrastructure at xtn.sh.</p>
+            <p>Source code available on <a href="https://github.com/xtncl/read2burn" target="_blank">GitHub</a> (based on the open source read2burn project).</p>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="sixteen columns" style="margin-top:60px;padding-top:20px;border-top:1px solid #ddd;text-align:center;font-size:12px;color:#666;">
+        <p>Operated by <a href="https://github.com/xtncl" target="_blank" style="color:#666;">Christian Lepuschitz</a> | 
+        <a href="https://cube.xtn.sh/imprint_privacy.html" target="_blank" style="color:#666;">Imprint & Privacy</a> | 
+        <a href="https://github.com/xtncl/read2burn" target="_blank" style="color:#666;">Source Code</a></p>
     </div>
 </div><!-- container -->
 
@@ -109,6 +145,15 @@
     $('#copy').click(function () {
         const url = document.getElementById('url');
         url.select();
+        document.execCommand('copy');
+        setTimeout(function(){
+            // mobile copying fix
+            document.execCommand('copy');
+        }, 500);
+    });
+    $('#copySecret').click(function () {
+        const result = document.getElementById('result');
+        result.select();
         document.execCommand('copy');
         setTimeout(function(){
             // mobile copying fix
